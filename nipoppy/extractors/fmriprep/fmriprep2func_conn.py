@@ -1,180 +1,261 @@
-from nilearn.maskers import NiftiLabelsMasker, NiftiSpheresMasker
+import argparse
+from copy import deepcopy
+import json
+import nipoppy.workflow.logger as my_logger
+import logging
+from nilearn.maskers import NiftiLabelsMasker
 from nilearn.interfaces.fmriprep import load_confounds
 from nilearn import datasets
-from nilearn import plotting
 import numpy as np
-from copy import deepcopy
 import os
 import warnings
 
 warnings.simplefilter('ignore')
 
 
-### paths to files
-# root = '/Users/mte/Documents/McGill/JB/QPN/data/'
-# output_root = '/Users/mte/Documents/McGill/JB/QPN/FC_output/'
+def extract_timeseries(func_file, brain_atlas, confound_strategy, dkt_atlas=None):
+	""" 
+	Extract timeseries from a given functional file using a given brain atlas 
+	confound_strategy:
+		'none': no confound regression
+		'no_motion': confound regression with no motion parameters
+		'no_motion_no_gsr': confound regression with no motion parameters and no global signal regression
+	brain_atlas:
+		'schaefer_100', 'schaefer_200', 'schaefer_300', 'schaefer_400', 'schaefer_500', 'schaefer_600', 'schaefer_800', 'schaefer_1000'
+		'DKT'
+	"""
+	### Load Atlas
+	## schaefer
+	if 'schaefer' in brain_atlas:
+		n_rois = int(brain_atlas[brain_atlas.find('schaefer')+9:])
+		parc = datasets.fetch_atlas_schaefer_2018(n_rois=n_rois)
+		atlas_filename = parc.maps
+		labels = parc.labels
+		# The list of labels does not contain ‘Background’ by default. 
+		# To have proper indexing, you should either manually add ‘Background’ to the list of labels:
+		# Prepend background label
+		labels = np.insert(labels, 0, 'Background')
+		# create the masker for extracting time series
+		masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
+	## DKT
+	elif brain_atlas=='DKT':
+		atlas_filename = dkt_atlas
+		labels = None
+		# create the masker for extracting time series
+		masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
 
-root = '../../../../pd/qpn/derivatives/fmriprep/v20.2.7/fmriprep/'
-output_root = '../outputs/FC_outputs/'
+	### extract the timeseries
+	if confound_strategy=='none':
+		time_series = masker.fit_transform(func_file)
+	elif confound_strategy=='no_motion':
+		confounds, sample_mask = load_confounds(
+				func_file,
+				strategy=["high_pass", "motion", "wm_csf"],
+				motion="basic", wm_csf="basic"
+		)
+		time_series = masker.fit_transform(
+				func_file,
+				confounds=confounds,
+				sample_mask=sample_mask
+		)
+	elif confound_strategy=='no_motion_no_gsr':
+		confounds, sample_mask = load_confounds(
+				func_file,
+				strategy=["high_pass", "motion", "wm_csf", "global_signal"],
+				motion="basic", wm_csf="basic", global_signal="basic"
+		)
+		time_series = masker.fit_transform(
+				func_file,
+				confounds=confounds,
+				sample_mask=sample_mask
+		)
 
-### parameters
+	print('number of ROIs = ' + str(time_series.shape[1]) + 
+		' and number of time points = ' + str(time_series.shape[0]))
 
-reorder_conn_mat = True
-visualize = False
-brain_atlas = 'schaefer' # schaefer or seitzman
-confound_strategy = 'no_motion_no_gsr' # no_motion or no_motion_no_gsr
+	if labels is None:
+		labels = ['region_'+str(i) for i in range(time_series.shape[1])]
+		labels = np.insert(labels, 0, 'Background')
 
-test_output = False
+	return time_series, labels
 
-### Load Atlas
 
-## schaefer
-if brain_atlas=='schaefer':
-      parc = datasets.fetch_atlas_schaefer_2018(n_rois=100)
-      atlas_filename = parc.maps
-      labels = parc.labels
-      # The list of labels does not contain ‘Background’ by default. 
-      # To have proper indexing, you should either manually add ‘Background’ to the list of labels:
-      # Prepend background label
-      labels = np.insert(labels, 0, 'Background')
-      # create the masker for extracting time series
-      masker = NiftiLabelsMasker(labels_img=atlas_filename, standardize=True)
-## seitzman
-if brain_atlas=='seitzman':
-      parc = datasets.fetch_coords_seitzman_2018()
-      atlas_filename = parc['rois']
-      radius = parc['radius']
-      labels = parc['regions']
-      # create the masker for extracting time series
-      masker = NiftiSpheresMasker(seeds=atlas_filename, radius=radius, standardize=True)
+def assess_FC(time_series, labels, metric_lst=['correlation']):
+	"""
+	Assess functional connectivity using Nilearn
+	metric_lst:
+		'correlation'
+		'precision'
+	"""
+	### output dictionary
+	FC = {}
 
-### Load Subjects
-ALL_SUBJECTS = os.listdir(root)
-ALL_SUBJECTS = [i for i in ALL_SUBJECTS if ('sub' in i) and (not '.html' in i)]
-ALL_SUBJECTS.sort()
-print('*** '+ str(len(ALL_SUBJECTS)) + ' subjects were found.')
-for subj in ALL_SUBJECTS:
-      print('*** running '+subj)
-      ### output dictionary
-      FC = {}
-      
-      ### functional data
-      bold = root + subj + '/ses-01/func/'+ subj +'_ses-01_task-rest_run-1_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz'
+	FC['roi_labels'] = labels[1:] # Be careful that the indexing should be offset by one
 
-      ### Confounds
+	### functional connectivity assessment
+	## correlation
+	if 'correlation' in metric_lst:
+		from nilearn.connectome import ConnectivityMeasure
+		correlation_measure = ConnectivityMeasure(kind='correlation')
+		correlation_matrix = correlation_measure.fit_transform([time_series])[0]
+		FC['correlation'] = deepcopy(correlation_matrix)
 
-      if confound_strategy=='no_motion':
-            confounds_simple, sample_mask = load_confounds(
-                  bold,
-                  strategy=["high_pass", "motion", "wm_csf"],
-                  motion="basic", wm_csf="basic"
-                  )
-      if confound_strategy=='no_motion_no_gsr':
-            confounds_minimal_no_gsr, sample_mask = load_confounds(
-                  bold,
-                  strategy=["high_pass", "motion", "wm_csf", "global_signal"],
-                  motion="basic", wm_csf="basic", global_signal="basic"
-                  )
+	## sparse inverse covariance 
+	if 'precision' in metric_lst:
+		try:
+				from sklearn.covariance import GraphicalLassoCV
+		except ImportError:
+		# for Scitkit-Learn < v0.20.0
+				from sklearn.covariance import GraphLassoCV as GraphicalLassoCV
 
-      ### extract the timeseries
-      time_series = masker.fit_transform(bold,
-                              confounds=confounds_minimal_no_gsr,
-                              sample_mask=sample_mask)
+		estimator = GraphicalLassoCV()
+		estimator.fit(time_series)
 
-      FC['roi_labels'] = labels[1:] # Be careful that the indexing should be offset by one
+		# The covariance can be found at estimator.covariance_
+		covariance_mat = estimator.covariance_
+		FC['covariance'] = deepcopy(covariance_mat)
 
-      ### functional connectivity assessment
-      ## correlation
+		precision_mat = -estimator.precision_
+		FC['precision'] = deepcopy(precision_mat)
 
-      from nilearn.connectome import ConnectivityMeasure
-      correlation_measure = ConnectivityMeasure(kind='correlation')
-      correlation_matrix = correlation_measure.fit_transform([time_series])[0]
-      FC['correlation'] = deepcopy(correlation_matrix)
+	return FC
 
-      # Plot the correlation matrix
+def run_FC(
+          participant_id: str,
+          session_id: str,
+          fmriprep_dir,
+		  DKT_dir,
+          FC_dir,
+          brain_atlas_lst,
+		  confound_strategy,
+		  metric_lst,
+		  task,
+		  run,
+		  space,
+		  logger: logging.Logger,
+):
+	""" Assess functional connectivity using Nilearn"""
+	
+	logger.info("Running FC assessment...")
+	logger.info("-"*50)
+	
+	try:
+		for brain_atlas in brain_atlas_lst:
+			logger.info('******** running ' + brain_atlas)
+			### extract time series
+			func_file = f"{fmriprep_dir}/{participant_id}/ses-{session_id}/dunc/{participant_id}_ses-{session_id}_{task}_{run}_{space}_desc-preproc_bold.nii.gz"
+			dkt_atlas = f"{DKT_dir}/{participant_id}/ses-{session_id}/anat/{participant_id}_ses-{session_id}_run-{run}_{space[:-6]}_atlas-DKTatlas+aseg_dseg.nii.gz" # space[:-6] removes the '_res2' suffix
+			time_series, labels = extract_timeseries(func_file, brain_atlas, confound_strategy, dkt_atlas)
 
-      if visualize:
-            # Make a large figure
-            # Mask the main diagonal for visualization:
-            np.fill_diagonal(correlation_matrix, 0)
-            # The labels we have start with the background (0), hence we skip the
-            # first label
-            # matrices are ordered for block-like representation
-            plotting.plot_matrix(correlation_matrix, figure=(10, 8), labels=labels[1:],
-                              vmax=1, vmin=-1, title="Correlation Confounds regressed",
-                              reorder=reorder_conn_mat)
+			### assess FC
+			FC = assess_FC(time_series, labels, metric_lst=metric_lst)
 
-      ## sparse inverse covariance 
-      try:
-            from sklearn.covariance import GraphicalLassoCV
-      except ImportError:
-      # for Scitkit-Learn < v0.20.0
-            from sklearn.covariance import GraphLassoCV as GraphicalLassoCV
+			## save output 
+			folder = f"{FC_dir}/output/{participant_id}/ses-{session_id}/"
+			if not os.path.exists(folder):
+				os.makedirs(folder)
+			np.save(f"{folder}/{participant_id}_ses-{session_id}_{task}_{space}_FC_{brain_atlas}.npy", FC)
+	except Exception as e:
+		logger.error(f"FC assessment failed with exceptions: {e}")
 
-      estimator = GraphicalLassoCV()
-      estimator.fit(time_series)
+	logger.info(f"Successfully completed FC assessment for participant: {participant_id}")
+	logger.info("-"*75)
+	logger.info("")
 
-      # The covariance can be found at estimator.covariance_
-      covariance_mat = estimator.covariance_
-      FC['covariance'] = deepcopy(covariance_mat)
-      if visualize:
-            np.fill_diagonal(covariance_mat, 0)
-            plotting.plot_matrix(covariance_mat, labels=labels[1:],
-                              figure=(9, 7), vmax=1, vmin=-1,
-                              title='Covariance', reorder=reorder_conn_mat)
 
-      precision_mat = -estimator.precision_
-      FC['precision'] = deepcopy(precision_mat)
-      if visualize:
-            np.fill_diagonal(precision_mat, 0)
-            plotting.plot_matrix(precision_mat, labels=labels[1:],
-                              figure=(9, 7), vmax=1, vmin=-1,
-                              title='Sparse inverse covariance', reorder=reorder_conn_mat)
-      if visualize:
-            plotting.show()
+def run(participant_id: str,
+        global_configs,
+		FC_configs,
+        session_id: str,
+        output_dir: str,
+        logger=None):
+	""" Runs fmriprep command
+	"""
+	DATASET_ROOT = global_configs["DATASET_ROOT"]
+	FMRIPREP_VERSION = global_configs["PROC_PIPELINES"]["fmriprep"]["VERSION"]
 
-      ### save output 
-      np.save(output_root+subj+'_FC_output.npy', FC) 
+	confound_strategy = FC_configs["confound_strategy"]
+	metric_lst = FC_configs["metric_lst"]
+	brain_atlas_lst = FC_configs["brain_atlas_lst"]
+	task = FC_configs["task"]
+	run = FC_configs["run"]
+	space = FC_configs["space"]
 
-print('*** FC measurement finished successfully.')
+	if metric_lst is None:
+		metric_lst = ['correlation']
+	if brain_atlas_lst is None:
+		brain_atlas_lst = [
+			'schaefer_100', 'schaefer_200',
+			'schaefer_300', 'schaefer_400',
+			'schaefer_500', 'schaefer_600',
+			'schaefer_800', 'schaefer_1000'
+		]
+	if confound_strategy is None:
+		confound_strategy = 'none'
 
-### test outputs
-if test_output:
-      # calc average static FC
+	log_dir = f"{DATASET_ROOT}/scratch/logs/"
 
-      metric = 'precision' # correlation , covariance , precision 
-      dir = './FC_outputs/'
+	if logger is None:
+		log_file = f"{log_dir}/FC.log"
+		logger = my_logger.get_logger(log_file)
 
-      ALL_RECORDS = os.listdir(dir)
-      ALL_RECORDS = [i for i in ALL_RECORDS if 'FC_output' in i]
-      ALL_RECORDS.sort()
-      print(str(len(ALL_RECORDS))+' subjects were found.')
+	logger.info("-"*75)
+	logger.info(f"Using DATASET_ROOT: {DATASET_ROOT}")
+	logger.info(f"Using participant_id: {participant_id}, session_id:{session_id}")
 
-      FC_all = list()
-      FC_MNI = list()
-      FC_PD = list()
-      for subj in ALL_RECORDS:
-            FC = np.load(dir+subj,allow_pickle='TRUE').item()
-            FC_all.append(FC[metric])
-            if 'MNI' in subj:
-                  FC_MNI.append(FC[metric])
-            if 'PD' in subj:
-                  FC_PD.append(FC[metric])
-      print(str(len(FC_MNI))+' MNI subjects were found.')
-      print(str(len(FC_PD))+' PD subjects were found.')
-      avg_FC = np.mean(np.array(FC_all), axis=0)
-      avg_FC_MNI = np.mean(np.array(FC_MNI), axis=0)
-      avg_FC_PD = np.mean(np.array(FC_PD), axis=0)
-      np.fill_diagonal(avg_FC, 0)
-      plotting.plot_matrix(avg_FC, labels=FC['roi_labels'],
-                  figure=(9, 7), vmax=1, vmin=-1,
-                  title=metric+' ALL', reorder=False)
-      np.fill_diagonal(avg_FC_MNI, 0)
-      plotting.plot_matrix(avg_FC_MNI, labels=FC['roi_labels'],
-                  figure=(9, 7), vmax=1, vmin=-1,
-                  title=metric+' MNI', reorder=False)
-      np.fill_diagonal(avg_FC_PD, 0)
-      plotting.plot_matrix(avg_FC_PD, labels=FC['roi_labels'],
-                  figure=(9, 7), vmax=1, vmin=-1,
-                  title=metric+' PD', reorder=False)
-      plotting.show()
+	if output_dir is None:
+		output_dir = f"{DATASET_ROOT}/derivatives/"
+
+	fmriprep_dir = f"{output_dir}/fmriprep/v{FMRIPREP_VERSION}/output"
+	DKT_dir = f"{DATASET_ROOT}/derivatives/networks/v0.9.0/output"
+	FC_dir = f"{output_dir}/FC"
+
+	# assess FC
+	run_FC(
+		participant_id,
+		session_id,
+		fmriprep_dir,
+		DKT_dir,
+		FC_dir,
+		brain_atlas_lst,
+		confound_strategy,
+		metric_lst,
+		task,
+		run,
+		space,
+		logger,
+	)
+    
+
+if __name__ == '__main__':
+	# argparse
+	HELPTEXT = """
+	Script to run FC assessment 
+	"""
+
+	parser = argparse.ArgumentParser(description=HELPTEXT)
+
+	parser.add_argument('--global_config', type=str, help='path to global configs for a given nipoppy dataset')
+	parser.add_argument('--FC_config', type=str, help='path to FC assessment configs for a given nipoppy dataset')
+	parser.add_argument('--participant_id', type=str, help='participant id')
+	parser.add_argument('--session_id', type=str, help='session id for the participant')
+	parser.add_argument('--output_dir', type=str, default=None, 
+						help='specify custom output dir (if None --> <DATASET_ROOT>/derivatives)')
+
+	args = parser.parse_args()
+
+	global_config_file = args.global_config
+	FC_config_file = args.FC_config
+	participant_id = args.participant_id
+	session_id = args.session_id
+	output_dir = args.output_dir # Needed on BIC (QPN) due to weird permissions issues with mkdir
+
+	# Read global configs
+	with open(global_config_file, 'r') as f:
+		global_configs = json.load(f)
+
+	# Read FC configs
+	with open(FC_config_file, 'r') as f:
+		FC_configs = json.load(f)
+
+	run(participant_id, global_configs, FC_configs, session_id, output_dir)
