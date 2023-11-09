@@ -143,9 +143,12 @@ def run_FC(
 		for brain_atlas in brain_atlas_lst:
 			logger.info('******** running ' + brain_atlas)
 			### extract time series
-			func_file = f"{fmriprep_dir}/{participant_id}/ses-{session_id}/dunc/{participant_id}_ses-{session_id}_{task}_{run}_{space}_desc-preproc_bold.nii.gz"
+			func_file = f"{fmriprep_dir}/{participant_id}/ses-{session_id}/func/{participant_id}_ses-{session_id}_{task}_{run}_{space}_desc-preproc_bold.nii.gz"
 			dkt_atlas = f"{DKT_dir}/{participant_id}/ses-{session_id}/anat/{participant_id}_ses-{session_id}_run-{run}_{space[:-6]}_atlas-DKTatlas+aseg_dseg.nii.gz" # space[:-6] removes the '_res2' suffix
-			time_series, labels = extract_timeseries(func_file, brain_atlas, confound_strategy, dkt_atlas)
+			if brain_atlas=='DKT':
+				time_series, labels = extract_timeseries(func_file, brain_atlas, confound_strategy, dkt_atlas)
+			else:
+				time_series, labels = extract_timeseries(func_file, brain_atlas, confound_strategy)
 
 			### assess FC
 			FC = assess_FC(time_series, labels, metric_lst=metric_lst)
@@ -156,6 +159,7 @@ def run_FC(
 				os.makedirs(folder)
 			np.save(f"{folder}/{participant_id}_ses-{session_id}_{task}_{space}_FC_{brain_atlas}.npy", FC)
 	except Exception as e:
+		print(f"FC assessment failed with exceptions: {e}")
 		logger.error(f"FC assessment failed with exceptions: {e}")
 
 	logger.info(f"Successfully completed FC assessment for participant: {participant_id}")
@@ -206,7 +210,7 @@ def run(participant_id: str,
 	if output_dir is None:
 		output_dir = f"{DATASET_ROOT}/derivatives/"
 
-	fmriprep_dir = f"{output_dir}/fmriprep/v{FMRIPREP_VERSION}/output"
+	fmriprep_dir = f"{DATASET_ROOT}/derivatives/fmriprep/v{FMRIPREP_VERSION}/output"
 	DKT_dir = f"{DATASET_ROOT}/derivatives/networks/v0.9.0/output"
 	FC_dir = f"{output_dir}/FC"
 
