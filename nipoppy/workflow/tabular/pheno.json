@@ -7,7 +7,7 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_extended_export":{
-                "path": "tabular/redcap/COPN-QPNMoCAUPDRSNeuropsy_DATA_LABELS_2024-04-04_1137(Nikhil).csv",
+                "path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_report": {
@@ -45,13 +45,14 @@
         "diagnosis": {       
             "type": "int",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_report",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{
                     "Suivi_RPQ": []
                 },
                 "redcap": {
                     "COPN_MRI_export": ["Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"],
+                    "sarah_extended_export": ["Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"],
                     "sarah_report": ["diagnosis_determined"],
                     "global_query": ["diagnosis_determined"]
                 }
@@ -70,12 +71,19 @@
         "updrs_score": {
             "type": "int",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_report",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{
-                    "redcap_export": []
+                    "Suivi_RPQ": []
                 },
                 "redcap": {
+                    "sarah_extended_export": [
+                        "Hoehn and Yahr Stage: ",
+                        "Part I: Non-Motor Aspects of Experiences of Daily Living (nM-EDL)",
+                        "Part II: Motor Aspects of Experiences of Daily Living (M-EDL)",
+                        "Part III: Motor Examination",
+                        "Part IV: Motor Complications"
+                    ],
                     "sarah_report": ["updrs_score_part_1", "updrs_score_part_2", "updrs_score_part_3", "updrs_score_part_4"],
                     "global_query": ["updrs_score_part_1", "updrs_score_part_2", "updrs_score_part_3", "updrs_score_part_4"]
                 }
@@ -84,12 +92,13 @@
         "moca_score": {
             "type": "int",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_report",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{
-                    "redcap_export": []
+                    "Suivi_RPQ": []
                 },
                 "redcap": {
+                    "sarah_extended_export": ["TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : "],
                     "sarah_report": ["moca_result", "moca_calculation"],
                     "global_query": ["moca_result", "moca_calculation"]
                 }
@@ -114,10 +123,11 @@
             "primary_source": "redcap",
             "primary_instrument": "sarah_extended_export",
             "sources": {
-                "local":{                    
+                "local":{     
+                    "Suivi_RPQ": []               
                 },
                 "redcap": {
-                    "sarah_extended_export": ["MDS-UPDRS Assessment completed:     Évaluation remplie:  "],
+                    "sarah_extended_export": ["Assessment completed:     Évaluation remplie:  "],
                     "sarah_report": ["full_mds_date_1"],
                     "global_query": ["full_mds_date_1"]
                 }
@@ -129,6 +139,7 @@
             "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{                    
+                    "Suivi_RPQ": []               
                 },
                 "redcap": {
                     "sarah_extended_export": ["Date of MoCA administration     Date d'administration du MoCA"],

@@ -7,7 +7,7 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_extended_export":{
-                "path": "tabular/redcap/COPN-QPNMoCAUPDRSNeuropsy_DATA_LABELS_2024-04-04_1137(Nikhil).csv",
+                "path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_report": {
@@ -59,12 +59,15 @@
         "dob": {            
             "type": "date",
             "primary_source": "redcap",
-            "primary_instrument":"COPN_MRI_export",
+            "secondary_source": "local",
+            "primary_instrument":"sarah_extended_export",
+            "secondary_instrument":"legacy_DOB",
             "sources": {
                 "local": {
                     "legacy_DOB":["Date of Birth/Date de naissance"]
                 },
                 "redcap": {
+                    "sarah_extended_export":["Date of Birth/Date de naissance:"],
                     "COPN_MRI_export":["Date of Birth"]
                 }
             }
@@ -72,14 +75,14 @@
         "sex": {
                 "type": "string",
                 "primary_source": "redcap",
-                "primary_instrument":"COPN_MRI_export",
+                "primary_instrument":"sarah_extended_export",
                 "sources": {
                     "local":{
                         "Suivi_RPQ":["Sex (M-F-Trans)"]                       
                     },
                     "redcap": {
                         "COPN_MRI_export":["1. Sex"],
-                        "default_report": ["gender"],
+                        "sarah_extended_export": ["1. Gender/Genre:"],
                         "global_query": ["gender"]
                     }
                 }
@@ -87,14 +90,14 @@
         "group": {
             "type": "string",
             "primary_source": "redcap",
-            "primary_instrument":"COPN_MRI_export",
+            "primary_instrument":"sarah_extended_export",
             "sources": {
                 "local":{
                     "Suivi_RPQ":["Group"]
                 },
                 "redcap": {
                     "COPN_MRI_export":["Enrolment Group:"],
-                    "default_report": ["enrolment_group_v2"],
+                    "sarah_extended_export": ["Enrolment Group:    Groupe d'inscription:"],
                     "global_query": ["enrolment_group_v2"]
                 }
             }
