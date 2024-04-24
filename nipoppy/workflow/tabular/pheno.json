@@ -35,13 +35,30 @@
             "manifest": {
                 "path": "tabular/manifest.csv",
                 "index_cols": ["participant_id","visit","session"]
+            },
+            "BD_RPQ_UPDATE_Neuropsy": {
+                "path": "tabular/recruitment/BD_RPQ_UPDATE_Neuropsy.xlsx - Parkinson patients.csv",
+                "index_cols": [
+                    "Patient #","Name of visit (V01, V02, V03)",
+                    "TimePoint (based on REDCap; baseline, 18m, 36m, etc.)",
+                    "Délai depuis baseline (mois)"
+                ]
             }
         }
     },
 
     "variables": {
         "description": "Map of internal and external variable names and their sources",
-        
+        "MRI_date": {
+            "type": "date",
+            "primary_source": "local",
+            "primary_instrument": "MRI_dates",
+            "sources": {
+                "local":{
+                    "MRI_dates": ["scanner_acq_date"]
+                }
+            }
+        },
         "diagnosis": {       
             "type": "int",
             "primary_source": "redcap",
@@ -58,17 +75,21 @@
                 }
             }
         },
-        "MRI_date": {
+        "diagnosis_date": {       
             "type": "date",
-            "primary_source": "local",
-            "primary_instrument": "MRI_dates",
+            "primary_source": "redcap",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{
-                    "MRI_dates": ["scanner_acq_date"]
+                    "Suivi_RPQ": []                    
+                },
+                "redcap": {
+                    "sarah_extended_export": ["2. What is the date of diagnosis?    2. Quelle est la date de diagnostic? "],
+                    "global_query": []
                 }
             }
         },
-        "updrs_score": {
+        "updrs_scores": {
             "type": "int",
             "primary_source": "redcap",
             "primary_instrument": "sarah_extended_export",
@@ -89,35 +110,6 @@
                 }
             }
         },
-        "moca_score": {
-            "type": "int",
-            "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
-            "sources": {
-                "local":{
-                    "Suivi_RPQ": []
-                },
-                "redcap": {
-                    "sarah_extended_export": ["TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : "],
-                    "sarah_report": ["moca_result", "moca_calculation"],
-                    "global_query": ["moca_result", "moca_calculation"]
-                }
-            }
-        },
-        "diagnosis_date": {       
-            "type": "date",
-            "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
-            "sources": {
-                "local":{
-                    "Suivi_RPQ": []                    
-                },
-                "redcap": {
-                    "sarah_extended_export": ["2. What is the date of diagnosis?    2. Quelle est la date de diagnostic? "],
-                    "global_query": []
-                }
-            }
-        },
         "updrs_date": {
             "type": "date",
             "primary_source": "redcap",
@@ -130,6 +122,21 @@
                     "sarah_extended_export": ["Assessment completed:     Évaluation remplie:  "],
                     "sarah_report": ["full_mds_date_1"],
                     "global_query": ["full_mds_date_1"]
+                }
+            }
+        },
+        "moca_scores": {
+            "type": "int",
+            "primary_source": "redcap",
+            "primary_instrument": "sarah_extended_export",
+            "sources": {
+                "local":{
+                    "Suivi_RPQ": []
+                },
+                "redcap": {
+                    "sarah_extended_export": ["TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : "],
+                    "sarah_report": ["moca_result", "moca_calculation"],
+                    "global_query": ["moca_result", "moca_calculation"]
                 }
             }
         },
@@ -147,7 +154,187 @@
                     "global_query": []
                 }
             }
+        },            
+        "neuropsy_scores": {
+            "type": "int",
+            "primary_source": "local",
+            "primary_instrument": "BD_RPQ_UPDATE_Neuropsy",
+            "sources": {
+                "local":{
+                    "BD_RPQ_UPDATE_Neuropsy": [
+                        "ADL PDQ-39 score over 0=1 score of 0=2",
+                        "HVLT Trial 1 (Raw score)",
+                        "HVLT Trial 2 (Raw score)",
+                        "HVLT Trial 3 (Raw score)",
+                        "HVLT Trial total 1,2,3 (Raw score)",
+                        "HVLT TOTAL [automatique]",
+                        "HVLT intrusions total 1,2,3 (Raw score)",
+                        "HVLT repetitions total 1,2,3 (Raw score)",
+                        "HVLT Trial 4 delayed (Raw score)",
+                        "RCFT Immediate (Raw score)",
+                        "RCFT Immediate (Time in seconds)",
+                        "RCFT Delayed (Raw score)",
+                        "RCFT Delayed (Time in seconds)",
+                        "Digit Span Forward - total correct (Raw score) ",
+                        "Digit span forward - longest correct serie (Raw score)",
+                        "Digit Span Backward - total correct (Raw score)",
+                        "Digit span backward - longest correct serie (Raw score)",
+                        "Digit span sequencing - total correct (Raw score)",
+                        "Digit span sequencing - longest correct serie (Raw score)",
+                        "Digit Span Total (Raw score)",
+                        "TMT A time seconds (Raw score)",
+                        "TMT A errors (Raw score)",
+                        "Clock Command (Raw score)",
+                        "Clock Copy (Raw score)",
+                        "RCFT Copy (Raw score)",
+                        "RCFT Copy (time in seconds)",
+                        "TMT B time (seconds) (Raw score)",
+                        "TMT B errors (Raw score)",
+                        "STROOP GOLDEN : WORDS, number of responses",
+                        "STROOP GOLDEN : words, self-corrected errors (raw score)",
+                        "STROOP GOLDEN, words, uncorrected errors (raw score)",
+                        "STROOP GOLDEN : COLORS Number of responses",
+                        "STROOP GOLDEN : colors, self-corrected errors (raw scores)",
+                        "STROOP GOLDEN: colors, uncorrected errors",
+                        "Stroop GOLDEN: INK Number of Responses ",
+                        "Stroop GOLDEN : ink, self-corrected errors (raw score)",
+                        "Stroop GOLDEN, ink, uncorrected errors (raw score)",
+                        "Stroop - D-Kefs, Cond. 1 - COLORS : Time (sec) (Raw score)",
+                        "Stroop - D-Kefs - cond. 1: self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.1: Uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.1: Total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2 WORDS: Time (sec) (Raw score)",
+                        "Stroop - D-Kefs -  Cond.2: Self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2: uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2: total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3 - INK: Time (sec) (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: Uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: Total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond. 3 - 1 (time)",
+                        "Stroop - D-Kefs - Cond. 3 - 1 (time) [automatique]",
+                        "Letter Fluency F (Raw score)",
+                        "Letter Fluency A (Raw score)",
+                        "Letter Fluency S (Raw score)",
+                        "Letter Fluency Total (Raw score)",
+                        "Letter fluency TOTAL [automatique]",
+                        "Letter Fluency Total (SL errors)",
+                        "Letter Fluency Total (Repetitions errors)",
+                        "Brixton Error (Raw score)",
+                        "Semantic Fluency Animals (Raw score)",
+                        "Semantic Fluency Actions (Raw score)",
+                        "Semantic Fluency Total (Raw score)",
+                        "Semantic fluency TOTAL [automatique]",
+                        "Sementic Fluency Total (SL errors)",
+                        "Sementic Fluency Total (Repetitions errors)",
+                        "BNT sans indices (Raw score)",
+                        "BNT avec IS",
+                        "BNT avec IP"
+                    ]
+                },
+                "redcap": {
+                    "sarah_extended_export": [
+                        "Was the Hopkins Verbal Learning Test Revised administered?",
+                        "Trial 1 raw",
+                        "Trial 2 raw",
+                        "Trial 3 raw",
+                        "Trial total 1,2,3 (Raw score)",
+                        "Intrusions total 1,2,3 (Raw score)",
+                        "Repetitions total 1,2,3 (Raw score)",
+                        "Trial 4 delayed (Raw score)",
+                        "Was the Rey Complex Figure Test administered?",
+                        "Copy raw",
+                        "Copy time (sec)",
+                        "Immediate recall raw",
+                        "Immediate recall time (sec)",
+                        "Delayed recall raw",
+                        "Delayed recall time (sec)",
+                        "Was the WAIS IV Digit Span test administered?",
+                        "Digit Span Forward - total correct (Raw score) ",
+                        "Digit span forward - longest correct serie (Raw score)",
+                        "Digit Span Backward - total correct (Raw score)",
+                        "Digit span backward - longest correct serie (Raw score)  ",
+                        "Was the Trails A B test administered?",
+                        "Trail A raw score (time in sec.)",
+                        "Trail A Errors raw score ",
+                        "Trail B raw score (time in sec.)",
+                        "Trail B Errors raw score",
+                        "Was the CDT test administered?",
+                        "Command Clock raw (max 10)",
+                        "Copy Clock raw (max 10)",
+                        "Was the Stroop Colour and Word test (Golden) administered?",
+                        "Was the Stroop Colour and Word (D-KEFS) test administered?",
+                        "STROOP GOLDEN : WORDS, number of responses",
+                        "STROOP GOLDEN : words, self-corrected errors (raw score)",
+                        "STROOP GOLDEN, words, uncorrected errors (raw score)",
+                        "STROOP GOLDEN : COLORS Number of responses",
+                        "STROOP GOLDEN : colors, self-corrected errors (raw scores)",
+                        "STROOP GOLDEN: colors, uncorrected errors",
+                        "Stroop GOLDEN: INK Number of Responses ",
+                        "Stroop GOLDEN : ink, self-corrected errors (raw score)",
+                        "Stroop GOLDEN, ink, uncorrected errors (raw score)",
+                        "Stroop - D-Kefs, Cond. 1 - COLORS : Time (sec) (Raw score)",
+                        "Stroop - D-Kefs - cond. 1: self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.1: Uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.1: Total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.1: Total errors (Automatic Calculation)",
+                        "Stroop - D-Kefs - Cond.2 WORDS: Time (sec) (Raw score)",
+                        "Stroop - D-Kefs -  Cond.2: Self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2: uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2: total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.2: total errors (Automatic Calculation)",
+                        "Stroop - D-Kefs - Cond.3 - INK: Time (sec) (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: self-corrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: Uncorrected errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: Total errors (Raw score)",
+                        "Stroop - D-Kefs - Cond.3: Total errors (Automatic calculation)",
+                        "Stroop - D-Kefs - Cond. 3 - 1 (time)",
+                        "Stroop - D-Kefs - Cond. 3 - 1 (time) (Automatic Calculation)",
+                        "Was the Letter Fluency test administered?",
+                        "Letter Fluency F (Raw score)",
+                        "Letter Fluency A (Raw score)",
+                        "Letter Fluency S (Raw score)",
+                        "Letter Fluency Total (Raw score)",
+                        "Total Set-Loss errors",
+                        "Total repetition errors ",
+                        "Letter Fluency Total (Automatic Calculation)",
+                        "Was the Brixton test administered?",
+                        "Brixton raw score",
+                        "Was the Semantic Fluency test administered?",
+                        "Semantic Fluency Animals (Raw score)",
+                        "Semantic Fluency Actions (Raw score)",
+                        "Semantic Fluency Total (Raw score)",
+                        "Total Set-Loss errors",
+                        "Total Repetition errors",
+                        "Semantic Fluency Total (Automatic Calculation)",
+                        "Was the Boston Naming test administered?",
+                        "BNT sans indice (Raw score)",
+                        "BNT sans indice + IS",
+                        "BNT sans indice + IS + IP",
+                        "Was the Purdue pegboard administered?",
+                        "Main dominante (30 sec)",
+                        "Main dominante (1 min)",
+                        "Main non dominante (30 sec)",
+                        "Main non dominante (1 min)",
+                        "Deux mains (30 sec)"
+                        ]                        
+                }
+            }
+        },
+        "neuropsy_date": {
+            "type": "date",
+            "primary_source": "local",
+            "primary_instrument": "BD_RPQ_UPDATE_Neuropsy",
+            "sources": {
+                "local":{                    
+                    "BD_RPQ_UPDATE_Neuropsy": ["Date of assessment"]               
+                },
+                "redcap": {
+                    "sarah_extended_export": []
+                }
+            }
         }
     }
 }
+
 
