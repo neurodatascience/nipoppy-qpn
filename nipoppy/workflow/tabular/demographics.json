@@ -87,6 +87,17 @@
                     }
                 }
         },
+        "education": {
+            "type": "string",
+            "primary_source": "redcap",
+            "primary_instrument":"sarah_extended_export",
+            "sources": {
+                "local":{},
+                "redcap": {                    
+                    "sarah_extended_export": ["Years of education /  nombre d'années d'éducation (calculated by neuropsy):  "]                    
+                }
+            }
+        },
         "group": {
             "type": "string",
             "primary_source": "redcap",
