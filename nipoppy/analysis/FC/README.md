@@ -11,5 +11,5 @@
 	- set paths to FC measurements and demographics, as well as the output directory
     - set the parameters related to brain scan, e.g. session id, task, as well as the brain atlases used for parcellation.
     - set the parameters related to PD/CTRL labels in the demographics/manifest
-    - set paramters related to calculating graph properties and a list of desired graph properties to be calculated.
+    - set parameters related to calculating graph properties and a list of desired graph properties to be calculated.
 
