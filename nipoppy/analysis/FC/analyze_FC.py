@@ -3,14 +3,75 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from nilearn import plotting
 import pandas as pd
-# import networkx as nx
+import networkx as nx
 import os
 import warnings
 
-warnings.simplefilter('ignore')
+# warnings.simplefilter('ignore')
 
 ##########################################################################################
 
+### paths to files
+# # local
+# FC_root = '/Users/mte/Documents/McGill/JB/QPN/output'
+# manifest_path = '/Users/mte/Documents/McGill/JB/QPN/output/demographics.csv'
+# output_root = '/Users/mte/Documents/McGill/JB/QPN/result_outputs'
+
+# BIC
+# FC_root = '/data/origami/mohammad/QPN/output/'
+# manifest_path = '/data/pd/qpn/tabular/demographics/demographics.csv'
+# output_root = '/data/origami/mohammad/QPN/results'
+
+dataset = "qpn"
+current_release = "Jan_2024"
+session = "ses-01"
+
+dataset_dir = f"/home/nikhil/projects/Parkinsons/{dataset}/"
+release_dir = f"{dataset_dir}/releases/{current_release}"
+tabular_dir = f"{release_dir}/tabular/"
+
+FC_root = f"{release_dir}/derivatives/fmriprep/v23.1.3/IDP/"
+
+# Current nipoppy manifest
+# manifest_path = f"{tabular_dir}/manifest.csv"
+
+# demographics
+manifest_path = f"{tabular_dir}/demographics/demographics.csv"
+
+# save dirs
+output_root = f"{release_dir}/derivatives/fmriprep/v23.1.3/IDP/FC/results/"
+
+
+### parameters
+session_id = 'ses-01'
+task = 'task-rest'
+space = 'space-MNI152NLin2009cAsym_res-2'
+brain_atlas_list = [
+    "schaefer_100",
+    # "schaefer_200", 
+    # "schaefer_300",
+    # "schaefer_400", 
+    # "schaefer_500",
+    # "schaefer_600", 
+    # "schaefer_800",
+    # "schaefer_1000",
+    # "DKT",
+]
+
+manifest_id_key = "participant_id"
+manifest_diagnosis_key = 'group_at_screening'
+PD_label = "PD   (Parkinson's Disease)/Maladie de Parkinson"
+CTRL_label = "Healthy control/Contrôle"
+
+metric = 'correlation' # correlation , covariance , precision 
+graph_prop_list = ['degree', 'clustering_coef'] # Use ["degree" or "clustering_coef"] for the paper  #['degree', 'communicability', 'shortest_path', 'clustering_coef'] 
+graph_prop_threshold_list = list(np.arange(0.1, 1.1, 0.2)) #[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
+reorder_conn_mat = False
+
+# plotting parameters
+save_image = True
+fix_lim = False # if True, the colorbar will be fixed to (-1, 1) for all plot_FC
 fig_dpi = 120
 fig_bbox_inches = 'tight'
 fig_pad = 0.1
@@ -26,6 +87,7 @@ def plot_FC(
         roi_labels=None,
         title='',
         reorder=False,
+        fix_lim=False,
         save_image=False, output_root=None
     ):
     '''
@@ -33,9 +95,17 @@ def plot_FC(
     '''
     figsize = (10, 8)
 
+    # set vmax and vmin
+    if fix_lim:
+        vmax = 1
+        vmin = -1
+    else:
+        vmax = np.max(np.abs(FC))
+        vmin = -1 * vmax
+    
     plotting.plot_matrix(
         FC, figure=figsize, labels=roi_labels,
-        vmax=1, vmin=-1,
+        vmax=vmax, vmin=vmin,
         reorder=reorder
     )
 
@@ -77,9 +147,14 @@ def cat_plot(data,
 
     for i, key in enumerate(data):
 
+        if key=="communicability":
+            log_scale = True
+        else:
+            log_scale = False
+
         df = pd.DataFrame(data[key])
-        sns.violinplot(ax=axs[i], data=df, x=x, y=y, hue=hue, width=0.5, split=True)
-        sns.stripplot(ax=axs[i], data=df, x=x, y=y, hue=hue, alpha=0.25, color='black')
+        sns.violinplot(ax=axs[i], data=df, x=x, y=y, hue=hue, width=0.5, split=True, alpha=0.75, log_scale=log_scale)
+        sns.stripplot(ax=axs[i], data=df, x=x, y=y, hue=hue, alpha=1, dodge=True, legend=False)
         
         axs[i].set(xlabel=None)
         axs[i].set(ylabel=None)
@@ -194,6 +269,9 @@ def FC2dict(FC_lst, networks, labels):
 
     output = {}
     for idx, FC in enumerate(FC_lst):
+
+        if labels[idx]=='EXCLUDE':
+            continue
         
         for i, network_i in enumerate(networks):
             for j, network_j in enumerate(networks):
@@ -221,7 +299,10 @@ def calc_graph_propoerty(A, property, threshold=None, binarize=False):
         - shortest_path
         - degree
         - clustering_coef
-        - communicability
+        - communicability:
+            The communicability between pairs of nodes in G is the sum of 
+            walks of different lengths starting at node u and ending at node v.
+            it does not take into account the weights of the edges
 
     Input:
 
@@ -230,9 +311,12 @@ def calc_graph_propoerty(A, property, threshold=None, binarize=False):
     Output:
 
         graph-property (np.array): a vector
+
+        if the threshold causes the graph to be disconnected,
+            it will return None
     """    
 
-    G = nx.from_numpy_matrix(np.abs(A)) 
+    G = nx.from_numpy_array(np.abs(A)) 
     G.remove_edges_from(nx.selfloop_edges(G))
     # G = G.to_undirected()
 
@@ -242,6 +326,11 @@ def calc_graph_propoerty(A, property, threshold=None, binarize=False):
         labels.sort()
         ebunch = [(u, v) for u, v, d in G.edges(data=True) if d['weight']<threshold]
         G.remove_edges_from(ebunch)
+
+    # check if the graph is still connected
+    if not nx.is_connected(G):
+        warnings.warn(f"The graph was disconnected after thresholding.")
+        return None
 
     if binarize:
         weight='None'
@@ -281,112 +370,119 @@ def calc_graph_propoerty(A, property, threshold=None, binarize=False):
 
 ##########################################################################################
 
-### paths to files
-# local
-root = '/Users/mte/Documents/McGill/JB/QPN/data/'
-output_root = '/Users/mte/Documents/McGill/JB/QPN/result_outputs/'
-
-# # server
-# root = '../../../../pd/qpn/derivatives/fmriprep/v20.2.7/fmriprep/'
-# output_root = '../outputs/FC_outputs/'
-
-save_image = True
-
-### parameters
-
-reorder_conn_mat = False
-visualize = False
-brain_atlas = 'schaefer' # schaefer or seitzman
-confound_strategy = 'no_motion_no_gsr' # no_motion or no_motion_no_gsr
-
 ##########################################################################################
 
 # calc average static FC
 
-metric = 'correlation' # correlation , covariance , precision 
-dir = './FC_outputs/'
 YEO_networks = ['Vis', 'SomMot', 'DorsAttn', 'SalVentAttn', 'Limbic', 'Cont','Default']
 
 # load description and demographics
-manifest = pd.read_csv('./mr_proc_manifest.csv')
+manifest = pd.read_csv(manifest_path)
 
-ALL_RECORDS = os.listdir(dir)
-ALL_RECORDS = [i for i in ALL_RECORDS if 'FC_output' in i]
+ALL_RECORDS = os.listdir(f"{FC_root}/FC/output")
+ALL_RECORDS = [i for i in ALL_RECORDS if 'sub-' in i]
 ALL_RECORDS.sort()
-print(str(len(ALL_RECORDS))+' subjects were found.')
+SUBJECTS = ALL_RECORDS
+print(str(len(SUBJECTS))+' subjects were found.')
 
-# prepare the roi labels for visualization
-FC = np.load(dir+ALL_RECORDS[0], allow_pickle='TRUE').item()
-roi_labels = FC['roi_labels']
-roi_labels = [str(label) for label in roi_labels]
-roi_labels = [label[label.find('Networks')+9:-3] for label in roi_labels]
 
-FC_lst= list()
-FC_segmented_lst = list()
-conditions = list()
-bids_id_lst = [id for id in manifest['bids_id']]
-for idx, subj in enumerate(ALL_RECORDS):
-    bids_id = subj[:subj.find('_FC_output.npy')] 
-    if bids_id in bids_id_lst: # if the subject id is not in the manifest, it will be excluded
-        FC = np.load(dir+subj,allow_pickle='TRUE').item()
-        segmented_FC = segment_FC(FC[metric], nodes=roi_labels, networks=YEO_networks)
-        FC_lst.append(FC[metric])
-        FC_segmented_lst.append(segmented_FC)
-        conditions.append(manifest['group'][bids_id_lst.index(bids_id)])
-    
-print(str(conditions.count('CTRL'))+' CTRL subjects were found.')
-print(str(conditions.count('PD'))+' PD subjects were found.')
-print(str(len(ALL_RECORDS) - conditions.count('CTRL') - conditions.count('PD'))+' subjects were excluded.')
+for brain_atlas in brain_atlas_list:
+    print(f"Analyzing FC files assessed using {brain_atlas} ...")
+    roi_labels_global = None
+    FC_lst= list()
+    FC_segmented_lst = list()
+    conditions = list()
+    participant_id_lst = [id for id in manifest[manifest_id_key]]
+    for idx, subj in enumerate(SUBJECTS):
+        participant_id = subj[4:] # remove 'sub-'
+        if participant_id in participant_id_lst: # if the subject id is not in the manifest, it will be excluded
+            subj_dir = f"{FC_root}/FC/output/{subj}/{session_id}/"
+            FC_file = f"{subj_dir}/{subj}_{session_id}_{task}_{space}_FC_{brain_atlas}.npy"
+            FC = np.load(FC_file, allow_pickle='TRUE').item()
 
-plot_FC(
-    FC=np.mean(np.array(FC_lst), axis=0),
-    roi_labels=roi_labels,
-    title='average FC',
-    reorder=reorder_conn_mat,
-    save_image=save_image, output_root=output_root
-)
+            # prepare the roi labels for visualization
+            roi_labels = FC['roi_labels']
+            roi_labels = [str(label) for label in roi_labels]
+            roi_labels = [label[label.find('Networks')+9:-3] for label in roi_labels]
+            if roi_labels_global is None:
+                roi_labels_global = roi_labels
+            else:
+                # check if the roi_labels are the same
+                if not roi_labels_global==roi_labels:
+                    warnings.warn(f"roi_labels are not the same for all subjects.")
 
-plot_FC(
-    FC=np.mean(np.array(FC_segmented_lst), axis=0),
-    roi_labels=YEO_networks,
-    title='segmented average FC',
-    reorder=reorder_conn_mat,
-    save_image=save_image, output_root=output_root
-)
+            segmented_FC = segment_FC(FC[metric], nodes=roi_labels_global, networks=YEO_networks)
+            FC_lst.append(FC[metric])
+            FC_segmented_lst.append(segmented_FC)
+            if manifest[manifest_diagnosis_key][participant_id_lst.index(participant_id)]==PD_label:
+                conditions.append("PD")
+            elif manifest[manifest_diagnosis_key][participant_id_lst.index(participant_id)]==CTRL_label:
+                conditions.append("CTRL")
+            else:
+                conditions.append("EXCLUDE")
+        
+    print(f"{conditions.count('CTRL')} CTRL subjects were found.")
+    print(f"{conditions.count('PD')} PD subjects were found.")
+    print(f"{len(SUBJECTS) - conditions.count('CTRL') - conditions.count('PD')} subjects were excluded.")
 
-FC_dict = FC2dict(FC_lst=FC_segmented_lst, networks=YEO_networks, labels=conditions)
-
-pairwise_cat_plots(FC_dict, x='', y='FC', label='label',
-    title='FC_dist', 
-    save_image=save_image, output_root=output_root
+    plot_FC(
+        FC=np.mean(np.array(FC_lst), axis=0),
+        roi_labels=roi_labels_global,
+        title='average_FC',
+        reorder=reorder_conn_mat,
+        fix_lim=fix_lim,
+        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
     )
 
-## graph
+    plot_FC(
+        FC=np.mean(np.array(FC_segmented_lst), axis=0),
+        roi_labels=YEO_networks,
+        title='segmented_average_FC',
+        reorder=reorder_conn_mat,
+        fix_lim=fix_lim,
+        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
+    )
 
-title = 'graph properties'
-RESULTS = {}
+    FC_dict = FC2dict(FC_lst=FC_segmented_lst, networks=YEO_networks, labels=conditions)
 
-for threshold in [0.8]:
-    for i, property in enumerate(['degree', 'communicability', 'shortest_path', 'clustering_coef']):
-        
-        RESULTS[property] = {'values':list(), 'condition':list(), '':list()}
-        for j, FC in enumerate(FC_lst):
-            features = calc_graph_propoerty(
-                A=FC, 
-                property=property, 
-                threshold=threshold, 
-                binarize=False
-                )
-
-            if property=='communicability' and np.mean(features)>2000:
-                continue
-            RESULTS[property][''].append('')
-            RESULTS[property]['values'].append(np.mean(features))
-            RESULTS[property]['condition'].append(conditions[j])    
-
-    cat_plot(data=RESULTS, x='', y='values',
-        hue='condition',
-        title=title+'_threshold_'+str(threshold),
-        save_image=save_image, output_root=output_root
+    pairwise_cat_plots(FC_dict, x='', y='FC', label='label',
+        title='FC_distribution', 
+        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
         )
 
+    ## graph
+
+    RESULTS = {}
+    for threshold in graph_prop_threshold_list:
+        for i, property in enumerate(graph_prop_list):
+            
+            RESULTS[property] = {'values':list(), 'condition':list(), '':list()}
+            for j, FC in enumerate(FC_lst):
+                
+                if conditions[j]=='EXCLUDE':
+                    continue
+
+                features = calc_graph_propoerty(
+                    A=FC, 
+                    property=property, 
+                    threshold=threshold, 
+                    binarize=False
+                )
+
+                if features is None:
+                    warnings.warn(f"Threshold={threshold} caused the graph to be disconnected.")
+                    continue
+
+                RESULTS[property][''].append('')
+                RESULTS[property]['values'].append(np.mean(features))
+                RESULTS[property]['condition'].append(conditions[j])    
+        try:
+            cat_plot(
+                data=RESULTS, x='', y='values',
+                hue='condition',
+                title=f"graph-properties_threshold-{threshold}",
+                save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
+            )
+        # catch the error and display
+        except Exception as e:
+            print(f"Error: {e}")

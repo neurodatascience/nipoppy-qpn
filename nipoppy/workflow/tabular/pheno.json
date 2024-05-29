@@ -7,7 +7,7 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_extended_export":{
-                "path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
+                "path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-05-29_1022.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_report": {
@@ -157,8 +157,8 @@
         },            
         "neuropsy_scores": {
             "type": "int",
-            "primary_source": "local",
-            "primary_instrument": "BD_RPQ_UPDATE_Neuropsy",
+            "primary_source": "redcap",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{
                     "BD_RPQ_UPDATE_Neuropsy": [
@@ -323,14 +323,14 @@
         },
         "neuropsy_date": {
             "type": "date",
-            "primary_source": "local",
-            "primary_instrument": "BD_RPQ_UPDATE_Neuropsy",
+            "primary_source": "redcap",
+            "primary_instrument": "sarah_extended_export",
             "sources": {
                 "local":{                    
                     "BD_RPQ_UPDATE_Neuropsy": ["Date of assessment"]               
                 },
                 "redcap": {
-                    "sarah_extended_export": []
+                    "sarah_extended_export": ["Neuropsycholgical Test Date:"]
                 }
             }
         }
