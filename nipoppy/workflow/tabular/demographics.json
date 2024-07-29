@@ -7,7 +7,8 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_extended_export":{
-                "path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
+                "path": "tabular/redcap/chunked/redcap_chunked_report.csv",
+                "old_path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_report": {
@@ -33,7 +34,7 @@
                 "index_cols": ["participant_id","session"]
             },
             "manifest": {
-                "path": "tabular/manifest.csv",
+                "path": "manifest.csv",
                 "index_cols": ["participant_id","visit","session"]
             }
         }
