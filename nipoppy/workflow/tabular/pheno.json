@@ -11,6 +11,14 @@
                 "old_path": "tabular/redcap/COPN-QPNDataMoCAUPDRSNeur_DATA_LABELS_2024-04-15_1202.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
+            "legacy_updrs_report": {
+                "path": "tabular/redcap/chunked/legacy_updrs.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
+            "collated_moca_report": {
+                "path": "tabular/redcap/chunked/redcap_and_legacy_moca.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
             "sarah_report": {
                 "path": "tabular/redcap/QPN MoCA-UPDRS-Neuropsy data_Sarah.csv",
                 "index_cols": ["record_id","redcap_event_name"]
@@ -126,36 +134,66 @@
                 }
             }
         },
+        "legacy_updrs3_scores": {
+            "type": "int",
+            "primary_source": "redcap",
+            "primary_instrument": "legacy_updrs_report",
+            "sources": {
+                "redcap": {
+                    "legacy_updrs_report": [
+                        "legacy_updrs3"
+                    ]
+                   }
+            }
+        },
+        "legacy_updrs3_date": {
+            "type": "date",
+            "primary_source": "redcap",
+            "primary_instrument": "legacy_updrs_report",
+            "sources": {
+                "local":{     
+                    "Suivi_RPQ": []               
+                },
+                "redcap": {
+                    "legacy_updrs_report": ["Assessment completed:     Évaluation remplie:  .1"]
+                }
+            }
+        },
+
         "moca_scores": {
             "type": "int",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
+            "primary_instrument": "collated_moca_report",
             "sources": {
                 "local":{
                     "Suivi_RPQ": []
                 },
                 "redcap": {
-                    "sarah_extended_export": ["TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : "],
-                    "sarah_report": ["moca_result", "moca_calculation"],
-                    "global_query": ["moca_result", "moca_calculation"]
+                    "collated_moca_report": [
+                        "TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : ",
+                        "Did the participant receive +1 extra point for 12 years or less of education?    Le participant a-t-il reçu +1 point supplémentaire pour 12 ans ou moins d'études?"
+                    ],
+                    "sarah_extended_export": [
+                        "TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : ",
+                        "Did the participant receive +1 extra point for 12 years or less of education?    Le participant a-t-il reçu +1 point supplémentaire pour 12 ans ou moins d'études?"
+                    ]
                 }
             }
         },
         "moca_date": {
             "type": "date",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
+            "primary_instrument": "collated_moca_report",
             "sources": {
                 "local":{                    
                     "Suivi_RPQ": []               
                 },
                 "redcap": {
-                    "sarah_extended_export": ["Date of MoCA administration     Date d'administration du MoCA"],
-                    "sarah_report": [],
-                    "global_query": []
+                    "collated_moca_report": ["Date of MoCA administration     Date d'administration du MoCA"],
+                    "sarah_extended_export": ["Date of MoCA administration     Date d'administration du MoCA"]
                 }
             }
-        },            
+        },     
         "neuropsy_scores": {
             "type": "int",
             "primary_source": "redcap",
