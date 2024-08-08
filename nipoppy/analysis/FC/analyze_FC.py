@@ -36,7 +36,7 @@ FC_root = f"{release_dir}/derivatives/fmriprep/v23.1.3/IDP/"
 # manifest_path = f"{tabular_dir}/manifest.csv"
 
 # demographics
-manifest_path = f"{tabular_dir}/demographics/demographics.csv"
+manifest_path = f"{tabular_dir}/demographics.csv"
 
 # save dirs
 output_root = f"{release_dir}/derivatives/fmriprep/v23.1.3/IDP/FC/results/"
@@ -70,6 +70,8 @@ graph_prop_threshold_list = list(np.arange(0.1, 1.1, 0.2)) #[0.1, 0.2, 0.3, 0.4,
 reorder_conn_mat = False
 
 # plotting parameters
+make_FC_plots = True
+make_pairwise_cat_plots = True
 save_image = True
 fix_lim = False # if True, the colorbar will be fixed to (-1, 1) for all plot_FC
 fig_dpi = 120
@@ -77,6 +79,13 @@ fig_bbox_inches = 'tight'
 fig_pad = 0.1
 show_title = False
 save_fig_format = 'png'
+
+# palette
+Hue_CONTROL = "#8d99ae"
+Hue_PD = "#e63946"
+
+color_list = [Hue_PD, Hue_CONTROL]
+QPN_Dx_palette = sns.color_palette(palette=color_list)
 
 ##########################################################################################
 
@@ -127,6 +136,7 @@ def cat_plot(data,
     x=None, y=None, 
     hue=None,
     title='',
+    palette=QPN_Dx_palette,
     save_image=False, output_root=None
     ):
     '''
@@ -153,8 +163,8 @@ def cat_plot(data,
             log_scale = False
 
         df = pd.DataFrame(data[key])
-        sns.violinplot(ax=axs[i], data=df, x=x, y=y, hue=hue, width=0.5, split=True, alpha=0.75, log_scale=log_scale)
-        sns.stripplot(ax=axs[i], data=df, x=x, y=y, hue=hue, alpha=1, dodge=True, legend=False)
+        sns.violinplot(ax=axs[i], data=df, x=x, y=y, hue=hue, width=0.5, split=True, alpha=0.75, log_scale=log_scale, palette=palette)
+        sns.stripplot(ax=axs[i], data=df, x=x, y=y, hue=hue, alpha=1, dodge=True, legend=False, palette=palette)
         
         axs[i].set(xlabel=None)
         axs[i].set(ylabel=None)
@@ -205,8 +215,8 @@ def pairwise_cat_plots(data, x, y, label=None,
         for j, key_j in enumerate(data[key_i]):
             df = pd.DataFrame(data[key_i][key_j])
 
-            gfg = sns.violinplot(ax=axs[i, j], data=df, x=x, y=y, hue=label, split=True)
-            sns.stripplot(ax=axs[i, j], data=df, x=x, y=y, alpha=0.25, color='black')
+            gfg = sns.violinplot(ax=axs[i, j], data=df, x=x, y=y, hue=label, width=0.5, split=True, alpha=0.75, palette=QPN_Dx_palette)
+            sns.stripplot(ax=axs[i, j], data=df, x=x, y=y, hue=label, alpha=1, dodge=True, palette=QPN_Dx_palette)
 
             gfg.legend(
                 # bbox_to_anchor= (1.2,1), 
@@ -425,33 +435,34 @@ for brain_atlas in brain_atlas_list:
     print(f"{conditions.count('PD')} PD subjects were found.")
     print(f"{len(SUBJECTS) - conditions.count('CTRL') - conditions.count('PD')} subjects were excluded.")
 
-    plot_FC(
-        FC=np.mean(np.array(FC_lst), axis=0),
-        roi_labels=roi_labels_global,
-        title='average_FC',
-        reorder=reorder_conn_mat,
-        fix_lim=fix_lim,
-        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
-    )
+    if make_FC_plots:
+        plot_FC(
+            FC=np.mean(np.array(FC_lst), axis=0),
+            roi_labels=roi_labels_global,
+            title='average_FC',
+            reorder=reorder_conn_mat,
+            fix_lim=fix_lim,
+            save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
+        )
 
-    plot_FC(
-        FC=np.mean(np.array(FC_segmented_lst), axis=0),
-        roi_labels=YEO_networks,
-        title='segmented_average_FC',
-        reorder=reorder_conn_mat,
-        fix_lim=fix_lim,
-        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
-    )
+        plot_FC(
+            FC=np.mean(np.array(FC_segmented_lst), axis=0),
+            roi_labels=YEO_networks,
+            title='segmented_average_FC',
+            reorder=reorder_conn_mat,
+            fix_lim=fix_lim,
+            save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
+        )
 
     FC_dict = FC2dict(FC_lst=FC_segmented_lst, networks=YEO_networks, labels=conditions)
 
-    pairwise_cat_plots(FC_dict, x='', y='FC', label='label',
-        title='FC_distribution', 
-        save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
-        )
+    if make_pairwise_cat_plots:
+        pairwise_cat_plots(FC_dict, x='', y='FC', label='label',
+            title='FC_distribution', 
+            save_image=save_image, output_root=f"{output_root}/{brain_atlas}/"
+            )
 
     ## graph
-
     RESULTS = {}
     for threshold in graph_prop_threshold_list:
         for i, property in enumerate(graph_prop_list):
@@ -473,7 +484,13 @@ for brain_atlas in brain_atlas_list:
                     warnings.warn(f"Threshold={threshold} caused the graph to be disconnected.")
                     continue
 
-                RESULTS[property][''].append('')
+                RESULTS[property][''].append('')                
+                if property=='degree': 
+                    RESULTS[property]['values'].append(np.max(features))  #'mean' is not good for FC degree
+                    print(f"using max to aggregate the graph properties: {property}")
+                else:
+                    print(f"using mean to aggregate the graph properties: {property}")
+                    
                 RESULTS[property]['values'].append(np.mean(features))
                 RESULTS[property]['condition'].append(conditions[j])    
         try:
