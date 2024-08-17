@@ -19,6 +19,14 @@
                 "path": "tabular/redcap/chunked/redcap_and_legacy_moca.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
+            "collated_updrs_report":{
+                "path": "tabular/redcap/COPN-(MDS)-UPDRS_DATA_LABELS_2024-08-16_1504.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
+            "Dx_confirm_report": {
+                "path": "tabular/redcap/COPN-QPNPDDiagnosticConfi_DATA_LABELS_2024-08-16_1958.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
             "sarah_report": {
                 "path": "tabular/redcap/QPN MoCA-UPDRS-Neuropsy data_Sarah.csv",
                 "index_cols": ["record_id","redcap_event_name"]
@@ -98,23 +106,39 @@
                 }
             }
         },
+        "diagnosis_confirmation": {       
+            "type": "str",
+            "primary_source": "redcap",
+            "primary_instrument": "Dx_confirm_report",
+            "sources": {
+                "redcap": {
+                    "Dx_confirm_report": ["Parkinson's disease in opinion of treating neurologist / Maladie de Parkinson selon l'avis du neurologue traitant"]
+                }
+            }
+        },
         "updrs_scores": {
             "type": "int",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
+            "primary_instrument": "collated_updrs_report",
             "sources": {
                 "local":{
                     "Suivi_RPQ": []
                 },
                 "redcap": {
-                    "sarah_extended_export": [
+                    "collated_updrs_report": [
                         "Hoehn and Yahr Stage: ",
                         "Part I: Non-Motor Aspects of Experiences of Daily Living (nM-EDL)",
                         "Part II: Motor Aspects of Experiences of Daily Living (M-EDL)",
                         "Part III: Motor Examination",
                         "Part IV: Motor Complications"
                     ],
-                    "sarah_report": ["updrs_score_part_1", "updrs_score_part_2", "updrs_score_part_3", "updrs_score_part_4"],
+                    "sarah_extended_export": [
+                        "Hoehn and Yahr Stage: ",
+                        "Part I: Non-Motor Aspects of Experiences of Daily Living (nM-EDL)",
+                        "Part II: Motor Aspects of Experiences of Daily Living (M-EDL)",
+                        "Part III: Motor Examination",
+                        "Part IV: Motor Complications"
+                    ],                   
                     "global_query": ["updrs_score_part_1", "updrs_score_part_2", "updrs_score_part_3", "updrs_score_part_4"]
                 }
             }
@@ -122,12 +146,13 @@
         "updrs_date": {
             "type": "date",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
+            "primary_instrument": "collated_updrs_report",
             "sources": {
                 "local":{     
                     "Suivi_RPQ": []               
                 },
                 "redcap": {
+                    "collated_updrs_report": ["Assessment completed:     Évaluation remplie:  "],
                     "sarah_extended_export": ["Assessment completed:     Évaluation remplie:  "],
                     "sarah_report": ["full_mds_date_1"],
                     "global_query": ["full_mds_date_1"]
