@@ -77,6 +77,7 @@ def run(global_configs, output_file, logger=None):
             try:
                 acq_date = get_acq_date(f"{dicom_path}")
             except Exception as e:
+                acq_date = None
                 logger.error(f"get_acq_date call failed with exceptions: {e}")
                 missing_mri_list.append(participant_dicom_dir)
 

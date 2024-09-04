@@ -18,7 +18,12 @@
             "global_query": {
                 "path": "tabular/redcap/global_records_query.csv",
                 "index_cols": ["record_id","redcap_event_name"]
+            },
+            "enrollment_report": {
+                "path": "tabular/redcap/Aug_29/COPN-EnrollmentGroup_DATA_LABELS_2024-08-28_2212.csv",
+                "index_cols": ["Record ID:","Event Name"]
             }
+
         },
         "local": {            
             "legacy_DOB": {
@@ -99,7 +104,17 @@
                 }
             }
         },
-        "group": {
+        "enrollment_group": {
+            "type": "str",
+            "primary_source": "redcap",
+            "primary_instrument": "enrollment_report",
+            "sources": {
+                "redcap": {
+                    "enrollment_report": ["Enrolment Group:    Groupe d'inscription:"]
+                }
+            }
+        },
+        "legacy_group": {
             "type": "string",
             "primary_source": "redcap",
             "primary_instrument":"sarah_extended_export",

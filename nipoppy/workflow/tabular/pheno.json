@@ -20,11 +20,15 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "collated_updrs_report":{
-                "path": "tabular/redcap/COPN-(MDS)-UPDRS_DATA_LABELS_2024-08-16_1504.csv",
+                "path": "tabular/redcap/Aug_29/COPN-QPN-(MDS)UPDRS_DATA_LABELS_2024-08-27_0836.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
+            "enrollment_report": {
+                "path": "tabular/redcap/Aug_29/COPN-EnrollmentGroup_DATA_LABELS_2024-08-28_2212.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "Dx_confirm_report": {
-                "path": "tabular/redcap/COPN-QPNPDDiagnosticConfi_DATA_LABELS_2024-08-16_1958.csv",
+                "path": "tabular/redcap/Aug_29/COPN-QPNDiagnosis_DATA_LABELS_2024-08-29_0759.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "sarah_report": {
@@ -66,6 +70,7 @@
 
     "variables": {
         "description": "Map of internal and external variable names and their sources",
+        
         "MRI_date": {
             "type": "date",
             "primary_source": "local",
@@ -112,7 +117,11 @@
             "primary_instrument": "Dx_confirm_report",
             "sources": {
                 "redcap": {
-                    "Dx_confirm_report": ["Parkinson's disease in opinion of treating neurologist / Maladie de Parkinson selon l'avis du neurologue traitant"]
+                    "Dx_confirm_report": [
+                        "Parkinson's disease in opinion of treating neurologist / Maladie de Parkinson selon l'avis du neurologue traitant",
+                        "Final impression / Impression finale",	
+                        "Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"
+                ]
                 }
             }
         },
@@ -129,6 +138,17 @@
                         "Hoehn and Yahr Stage: ",
                         "Part I: Non-Motor Aspects of Experiences of Daily Living (nM-EDL)",
                         "Part II: Motor Aspects of Experiences of Daily Living (M-EDL)",
+                        "Updrs_3_1 value", "Updrs_3_2 value", "Updrs_3_3_neck value",
+                        "Updrs_3_3_rue value", "Updrs_3_3_lue value", "Updrs_3_3_rle value",
+                        "Updrs_3_3_lle value", "Updrs_3_4_r value", "Updrs_3_4_l value",
+                        "Updrs_3_5_r value", "Updrs_3_5_l value", "Updrs_3_6_r value",
+                        "Updrs_3_6_l value", "Updrs_3_7_r value", "Updrs_3_7_l value",
+                        "Updrs_3_8_r value", "Updrs_3_8_l value", "Updrs_3_9 value",
+                        "Updrs_3_10 value", "Updrs_3_11 value", "Updrs_3_12 value",
+                        "Updrs_3_13 value", "Updrs_3_14", "Updrs_3_15_r value",
+                        "Updrs_3_15_l value", "Updrs_3_16_r value", "Updrs_3_16_l value",
+                        "Updrs_3_17_rue value", "Updrs_3_17_lue value", "Updrs_3_17_rle value",
+                        "Updrs_3_17_lle value", "Updrs_3_17_lipjaw value", "Updrs_3_18 value",
                         "Part III: Motor Examination",
                         "Part IV: Motor Complications"
                     ],
