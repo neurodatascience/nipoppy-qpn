@@ -20,7 +20,7 @@
                 "index_cols": ["record_id","redcap_event_name"]
             },
             "enrollment_report": {
-                "path": "tabular/redcap/Aug_29/COPN-EnrollmentGroup_DATA_LABELS_2024-08-28_2212.csv",
+                "path": "tabular/redcap/Sept_25/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
                 "index_cols": ["Record ID:","Event Name"]
             }
 

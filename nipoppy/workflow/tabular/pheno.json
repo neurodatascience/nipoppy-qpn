@@ -19,18 +19,20 @@
                 "path": "tabular/redcap/chunked/redcap_and_legacy_moca.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
+
             "collated_updrs_report":{
-                "path": "tabular/redcap/Aug_29/COPN-QPN-(MDS)UPDRS_DATA_LABELS_2024-08-27_0836.csv",
+                "path": "tabular/redcap/Sept_25/COPN-AndrewVoMDSUPDRS_DATA_LABELS_2024-09-25_0228.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "enrollment_report": {
-                "path": "tabular/redcap/Aug_29/COPN-EnrollmentGroup_DATA_LABELS_2024-08-28_2212.csv",
+                "path": "tabular/redcap/Sept_25/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "Dx_confirm_report": {
-                "path": "tabular/redcap/Aug_29/COPN-QPNDiagnosis_DATA_LABELS_2024-08-29_0759.csv",
+                "path": "tabular/redcap/Sept_25/COPN-AndrewVoQPNPDDiagnostic-Confirmation_DATA_LABELS_2024-09-25_0240.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
+            
             "sarah_report": {
                 "path": "tabular/redcap/QPN MoCA-UPDRS-Neuropsy data_Sarah.csv",
                 "index_cols": ["record_id","redcap_event_name"]
@@ -119,9 +121,9 @@
                 "redcap": {
                     "Dx_confirm_report": [
                         "Parkinson's disease in opinion of treating neurologist / Maladie de Parkinson selon l'avis du neurologue traitant",
-                        "Final impression / Impression finale",	
-                        "Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"
-                ]
+                        "Final impression / Impression finale"                        
+                ],
+                "legacy_Dx_confirm_report_col": "Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"
                 }
             }
         },
