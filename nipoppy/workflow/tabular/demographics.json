@@ -15,12 +15,13 @@
                 "path": "tabular/redcap/QPN MoCA-UPDRS-Neuropsy data_Sarah.csv",
                 "index_cols": ["record_id","redcap_event_name"]
             },
-            "global_query": {
-                "path": "tabular/redcap/global_records_query.csv",
+            "demographic_query": {
+                "path": "tabular/redcap/Demographic_QPN_query.csv",
                 "index_cols": ["record_id","redcap_event_name"]
             },
             "enrollment_report": {
-                "path": "tabular/redcap/Sept_25/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
+                "old_path": "tabular/redcap/chunked/redcap_chunked_report.csv",
+                "path": "tabular/redcap/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
                 "index_cols": ["Record ID:","Event Name"]
             }
 
@@ -66,41 +67,40 @@
             "type": "date",
             "primary_source": "redcap",
             "secondary_source": "local",
-            "primary_instrument":"sarah_extended_export",
+            "primary_instrument":"enrollment_report",
             "secondary_instrument":"legacy_DOB",
             "sources": {
                 "local": {
                     "legacy_DOB":["Date of Birth/Date de naissance"]
                 },
                 "redcap": {
-                    "sarah_extended_export":["Date of Birth/Date de naissance:"],
-                    "COPN_MRI_export":["Date of Birth"]
+                    "enrollment_report":["Date of Birth/Date de naissance:"]                    
                 }
             }
         },
         "sex": {
                 "type": "string",
                 "primary_source": "redcap",
-                "primary_instrument":"sarah_extended_export",
+                "primary_instrument":"demographic_query",
                 "sources": {
                     "local":{
                         "Suivi_RPQ":["Sex (M-F-Trans)"]                       
                     },
-                    "redcap": {
-                        "COPN_MRI_export":["1. Sex"],
+                    "redcap": {                        
                         "sarah_extended_export": ["1. Gender/Genre:"],
-                        "global_query": ["gender"]
+                        "demographic_query": ["gender"]
                     }
                 }
         },
         "education": {
             "type": "string",
             "primary_source": "redcap",
-            "primary_instrument":"sarah_extended_export",
+            "primary_instrument":"demographic_query",
             "sources": {
                 "local":{},
                 "redcap": {                    
-                    "sarah_extended_export": ["Years of education /  nombre d'années d'éducation (calculated by neuropsy):  "]                    
+                    "sarah_extended_export": ["Years of education /  nombre d'années d'éducation (calculated by neuropsy):  "],
+                    "demographic_query": ["yrs_education"]
                 }
             }
         },

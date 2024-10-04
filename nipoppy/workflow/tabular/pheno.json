@@ -12,34 +12,32 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "legacy_updrs_report": {
-                "path": "tabular/redcap/chunked/legacy_updrs.csv",
+                "path": "tabular/redcap/roozbeh/COPN-QPN-(MDS)UPDRS_DATA_LABELS_2024-08-27_0836.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
+            "legacy_moca_report": {
+                "path": "tabular/redcap/COPN-MoCA1_DATA_LABELS_2024-08-16_1456.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "collated_moca_report": {
-                "path": "tabular/redcap/chunked/redcap_and_legacy_moca.csv",
+                "path": "tabular/redcap/COPN-Andrew_Vo_MoCA-FollowUp-12_18.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
-
             "collated_updrs_report":{
-                "path": "tabular/redcap/Sept_25/COPN-AndrewVoMDSUPDRS_DATA_LABELS_2024-09-25_0228.csv",
+                "path": "tabular/redcap/COPN-AndrewVoMDSUPDRS_DATA_LABELS_2024-09-30_0117.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "enrollment_report": {
-                "path": "tabular/redcap/Sept_25/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
+                "path": "tabular/redcap/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
-            "Dx_confirm_report": {
-                "path": "tabular/redcap/Sept_25/COPN-AndrewVoQPNPDDiagnostic-Confirmation_DATA_LABELS_2024-09-25_0240.csv",
+            "Dx_confirm_notes_report": {
+                "path": "tabular/redcap/COPN-AndrewVoQPNDiag_DATA_LABELS_2024-09-25_0235.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
-            
-            "sarah_report": {
-                "path": "tabular/redcap/QPN MoCA-UPDRS-Neuropsy data_Sarah.csv",
-                "index_cols": ["record_id","redcap_event_name"]
-            },
-            "global_query": {
-                "path": "tabular/redcap/global_records_query.csv",
-                "index_cols": ["record_id","redcap_event_name"]
+            "Dx_confirm_dates_report": {
+                "path": "tabular/redcap/COPN-AndrewVoQPNPDDiagnostic-Confirmation_DATA_LABELS_2024-09-25_0240.csv",
+                "index_cols": ["Record ID:","Event Name"]
             }
         },
         "local": {            
@@ -102,28 +100,28 @@
         "diagnosis_date": {       
             "type": "date",
             "primary_source": "redcap",
-            "primary_instrument": "sarah_extended_export",
+            "primary_instrument": "Dx_confirm_dates_report",
             "sources": {
                 "local":{
                     "Suivi_RPQ": []                    
                 },
                 "redcap": {
                     "sarah_extended_export": ["2. What is the date of diagnosis?    2. Quelle est la date de diagnostic? "],
-                    "global_query": []
+                    "Dx_confirm_dates_report": ["Year of diagnosis / Année du diagnostic"]
                 }
             }
         },
         "diagnosis_confirmation": {       
             "type": "str",
             "primary_source": "redcap",
-            "primary_instrument": "Dx_confirm_report",
+            "primary_instrument": "Dx_confirm_notes_report",
             "sources": {
                 "redcap": {
-                    "Dx_confirm_report": [
+                    "Dx_confirm_notes_report": [
                         "Parkinson's disease in opinion of treating neurologist / Maladie de Parkinson selon l'avis du neurologue traitant",
-                        "Final impression / Impression finale"                        
-                ],
-                "legacy_Dx_confirm_report_col": "Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"
+                        "Final impression / Impression finale",
+                        "Determined diagnosis:  If score = 0, Parkinson's Disease (PD)  If score = 1, Progressive Supranuclear Palsy (PSP)  If score = 2, Multiple System Atrophy (MSA)  If score = 3, Corticobasal Syndrome (CBS)  If score = 4, Dementia with Lewy Bodies (DLB)  If score = 5, Frontotemporal Dementia (FTD)  If score = 6, Essential Tremor (ET)  If score = 7, REM Sleep Behaviour Disorder (RBD)"
+                    ]
                 }
             }
         },
@@ -187,9 +185,7 @@
             "primary_instrument": "legacy_updrs_report",
             "sources": {
                 "redcap": {
-                    "legacy_updrs_report": [
-                        "legacy_updrs3"
-                    ]
+                    "legacy_updrs_report": []
                    }
             }
         },
@@ -202,11 +198,10 @@
                     "Suivi_RPQ": []               
                 },
                 "redcap": {
-                    "legacy_updrs_report": ["Assessment completed:     Évaluation remplie:  .1"]
+                    "legacy_updrs_report": ["Assessment completed:     Évaluation remplie:  "]
                 }
             }
         },
-
         "moca_scores": {
             "type": "int",
             "primary_source": "redcap",
@@ -217,10 +212,6 @@
                 },
                 "redcap": {
                     "collated_moca_report": [
-                        "TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : ",
-                        "Did the participant receive +1 extra point for 12 years or less of education?    Le participant a-t-il reçu +1 point supplémentaire pour 12 ans ou moins d'études?"
-                    ],
-                    "sarah_extended_export": [
                         "TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : ",
                         "Did the participant receive +1 extra point for 12 years or less of education?    Le participant a-t-il reçu +1 point supplémentaire pour 12 ans ou moins d'études?"
                     ]
@@ -236,11 +227,39 @@
                     "Suivi_RPQ": []               
                 },
                 "redcap": {
-                    "collated_moca_report": ["Date of MoCA administration     Date d'administration du MoCA"],
-                    "sarah_extended_export": ["Date of MoCA administration     Date d'administration du MoCA"]
+                    "collated_moca_report": ["Date of MoCA administration     Date d'administration du MoCA"]                    
                 }
             }
-        },     
+        },  
+        "legacy_moca_scores": {
+            "type": "int",
+            "primary_source": "redcap",
+            "primary_instrument": "legacy_moca_report",
+            "sources": {
+                "local":{
+                    "Suivi_RPQ": []
+                },
+                "redcap": {
+                    "legacy_moca_report": [
+                        "TOTAL SCORE (make sure to include extra point for 12 years or less of education):    SCORE TOTAL (assurez-vous d'inclure un point supplémentaire pour 12 ans ou moins d'éducation) : ",
+                        "Did the participant receive +1 extra point for 12 years or less of education?    Le participant a-t-il reçu +1 point supplémentaire pour 12 ans ou moins d'études?"
+                    ]
+                }
+            }
+        },
+        "legacy_moca_date": {
+            "type": "date",
+            "primary_source": "redcap",
+            "primary_instrument": "legacy_moca_report",
+            "sources": {
+                "local":{                    
+                    "Suivi_RPQ": []               
+                },
+                "redcap": {
+                    "legacy_moca_report": ["Date of MoCA administration     Date d'administration du MoCA"]                    
+                }
+            }
+        },   
         "neuropsy_scores": {
             "type": "int",
             "primary_source": "redcap",
