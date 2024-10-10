@@ -12,21 +12,21 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "legacy_updrs_report": {
-                "path": "tabular/redcap/roozbeh/COPN-QPN-(MDS)UPDRS_DATA_LABELS_2024-08-27_0836.csv",
-                "index_cols": ["Record ID:","Event Name"]
-            },
-            "legacy_moca_report": {
-                "path": "tabular/redcap/COPN-MoCA1_DATA_LABELS_2024-08-16_1456.csv",
-                "index_cols": ["Record ID:","Event Name"]
-            },
-            "collated_moca_report": {
-                "path": "tabular/redcap/COPN-Andrew_Vo_MoCA-FollowUp-12_18.csv",
+                "path": "tabular/redcap/COPN-AndrewVoMDSUPDRS1Bas_DATA_LABELS_2024-10-10_0917.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "collated_updrs_report":{
-                "path": "tabular/redcap/COPN-AndrewVoMDSUPDRS_DATA_LABELS_2024-09-30_0117.csv",
+                "path": "tabular/redcap/COPN-AndrewVo-MDSUPDRS_Base+FU.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
+            "legacy_moca_report": {
+                "path": "tabular/redcap/COPN-AndrewVo-MoCA-1_Base.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
+            "collated_moca_report": {
+                "path": "tabular/redcap/COPN-AndrewVo-MoCA_Base+FU.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },            
             "enrollment_report": {
                 "path": "tabular/redcap/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
                 "index_cols": ["Record ID:","Event Name"]
@@ -50,7 +50,7 @@
                 "index_cols": ["participant_id"]
             },
             "MRI_dates": {
-                "path": "tabular/recruitment/MRI_acqdata.csv",
+                "path": "tabular/mri_info/MRI_acqdata.csv",
                 "index_cols": ["participant_id","session"]
             },
             "manifest": {
@@ -185,7 +185,24 @@
             "primary_instrument": "legacy_updrs_report",
             "sources": {
                 "redcap": {
-                    "legacy_updrs_report": []
+                    "legacy_updrs_report": [
+                        "Hoehn and Yahr Stage: ",
+                        "Part I: Non-Motor Aspects of Experiences of Daily Living (nM-EDL)",
+                        "Part II: Motor Aspects of Experiences of Daily Living (M-EDL)",
+                        "Updrs_3_1 value", "Updrs_3_2 value", "Updrs_3_3_neck value",
+                        "Updrs_3_3_rue value", "Updrs_3_3_lue value", "Updrs_3_3_rle value",
+                        "Updrs_3_3_lle value", "Updrs_3_4_r value", "Updrs_3_4_l value",
+                        "Updrs_3_5_r value", "Updrs_3_5_l value", "Updrs_3_6_r value",
+                        "Updrs_3_6_l value", "Updrs_3_7_r value", "Updrs_3_7_l value",
+                        "Updrs_3_8_r value", "Updrs_3_8_l value", "Updrs_3_9 value",
+                        "Updrs_3_10 value", "Updrs_3_11 value", "Updrs_3_12 value",
+                        "Updrs_3_13 value", "Updrs_3_14", "Updrs_3_15_r value",
+                        "Updrs_3_15_l value", "Updrs_3_16_r value", "Updrs_3_16_l value",
+                        "Updrs_3_17_rue value", "Updrs_3_17_lue value", "Updrs_3_17_rle value",
+                        "Updrs_3_17_lle value", "Updrs_3_17_lipjaw value", "Updrs_3_18 value",
+                        "Part III: Motor Examination",
+                        "Part IV: Motor Complications"
+                    ]
                    }
             }
         },

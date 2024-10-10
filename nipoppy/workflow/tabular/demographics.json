@@ -19,6 +19,10 @@
                 "path": "tabular/redcap/Demographic_QPN_query.csv",
                 "index_cols": ["record_id","redcap_event_name"]
             },
+            "demographic_report": {
+                "path": "tabular/redcap/COPN-AndrewVo-Demographic.csv",
+                "index_cols": ["Record ID:","Event Name"]
+            },
             "enrollment_report": {
                 "old_path": "tabular/redcap/chunked/redcap_chunked_report.csv",
                 "path": "tabular/redcap/COPN-AndrewEnrollment_Group_DoB_DATA_LABELS_2024-09-25_0215.csv",
@@ -87,7 +91,7 @@
                         "Suivi_RPQ":["Sex (M-F-Trans)"]                       
                     },
                     "redcap": {                        
-                        "sarah_extended_export": ["1. Gender/Genre:"],
+                        "demographic_report": ["1. Gender/Genre:"],
                         "demographic_query": ["gender"]
                     }
                 }
@@ -99,7 +103,7 @@
             "sources": {
                 "local":{},
                 "redcap": {                    
-                    "sarah_extended_export": ["Years of education /  nombre d'années d'éducation (calculated by neuropsy):  "],
+                    "demographic_report": ["5. Years of education (calculate the total number of years starting from grade 1 onwards including high school and post-secondary (College, University, or others)):    5. Nombre d'années d'études (calculez le nombre total d'années à partir de la première année, y compris l'école secondaire et les études postsecondaires (collège, université ou autres)):"],
                     "demographic_query": ["yrs_education"]
                 }
             }
