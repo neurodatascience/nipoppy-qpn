@@ -1,0 +1,7 @@
+{
+    "DATASET_NAME": "my_dataset",
+    "SESSION_IDS": [
+        "A",
+        "B"
+    ]
+}
