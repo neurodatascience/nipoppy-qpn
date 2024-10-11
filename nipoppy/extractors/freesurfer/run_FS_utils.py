@@ -114,14 +114,18 @@ if __name__ == '__main__':
     Path(f"{output_dir}").mkdir(parents=True, exist_ok=True)
 
     # grab bids_ids 
-    manifest = f"{dataset_root}/tabular/manifest.csv"
+    manifest = f"{dataset_root}/manifest.csv"
 
     # grab Dx info
-    demographics_csv = f"{dataset_root}/tabular/demographics/demographics.csv"
+    demographics_csv = f"{dataset_root}/tabular/demographics.csv"
         
     # Singularity CMD 
     SINGULARITY_CMD=f"singularity exec -B {FS_dir}:/fsdir -B {output_dir}:/output_dir {SINGULARITY_FMRIPREP} "
 
+    
+    # --------------------------------------------------------------------
+    # Replace this with doughnut
+    # --------------------------------------------------------------------
     # Read participant lists and filter by session and group
     manifest_df = pd.read_csv(manifest)
     manifest_df = manifest_df[manifest_df["session"] == session]
@@ -134,6 +138,8 @@ if __name__ == '__main__':
     
     manifest_df = manifest_df[~manifest_df["bids_id"].isna()]
     n_bids = len(manifest_df["bids_id"].unique())
+    # --------------------------------------------------------------------
+
 
     print("")
     print("-"*50)
