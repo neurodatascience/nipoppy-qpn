@@ -12,7 +12,7 @@
                 "index_cols": ["Record ID:","Event Name"]
             },
             "legacy_updrs_report": {
-                "path": "tabular/redcap/COPN-AndrewVoMDSUPDRS1Bas_DATA_LABELS_2024-10-10_0917.csv",
+                "path": "tabular/redcap/COPN-AndrewVo_MDSUPDRS-1_Baseline.csv",
                 "index_cols": ["Record ID:","Event Name"]
             },
             "collated_updrs_report":{
