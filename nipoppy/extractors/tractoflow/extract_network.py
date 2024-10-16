@@ -205,13 +205,13 @@ def run(participant_id, global_configs, session_id, output_dir,
         output_dir = f"{DATASET_ROOT}/derivatives/networks/v0.9.0"
 
     if tractoflow_dir is None:
-        tractoflow_dir = f"{DATASET_ROOT}/derivatives/tractoflow/{TRACTOFLOW_VERSION}/output/ses-{session_id}"
+        tractoflow_dir = f"{DATASET_ROOT}/derivatives/tractoflow/v{TRACTOFLOW_VERSION}/output/ses-{session_id}"
 
     if fmriprep_dir is None:
-        fmriprep_dir = f"{DATASET_ROOT}/derivatives/fmriprep/{FMRIPREP_VERSION}/output"
+        fmriprep_dir = f"{DATASET_ROOT}/derivatives/fmriprep/v{FMRIPREP_VERSION}/output"
 
     if freesurfer_dir is None:
-        freesurfer_dir = f"{DATASET_ROOT}/derivatives/freesurfer/{FS_VERSION}/output/ses-{session_id}"
+        freesurfer_dir = f"{DATASET_ROOT}/derivatives/freesurfer/v{FS_VERSION}/output/ses-{session_id}"
 
     # these paths build all the input / output files
 
@@ -223,13 +223,13 @@ def run(participant_id, global_configs, session_id, output_dir,
     # add functional as part of this? easy to load...
 
     # make output paths if they don't exist
-    if ~os.path.exists(LABPATH):
+    if not os.path.exists(LABPATH):
         os.makedirs(LABPATH)
 
-    if ~os.path.exists(SEGPATH):
+    if not os.path.exists(SEGPATH):
         os.makedirs(SEGPATH)
 
-    if ~os.path.exists(NETPATH):
+    if not os.path.exists(NETPATH):
         os.makedirs(NETPATH)
 
     # SPLIT HERE TO MAKE run_extractor() FOR EASIER INVOCATION
@@ -271,7 +271,7 @@ def run(participant_id, global_configs, session_id, output_dir,
     create_dkt_atlas(DKT_MGZ, DKT_NII)
 
     # copy the full set of labels - Ideally prune down to just the cortical...
-    if ~os.path.exists(Path(LABPATH, f"atlas-DKT_dseg.tsv")):
+    if not os.path.exists(Path(LABPATH, f"atlas-DKT_dseg.tsv")):
         print("Copy DKT labels file to output")
         shutil.copyfile(Path(TEMPLATEFLOW_DIR, 'tpl-fsaverage', "tpl-fsaverage_dseg.tsv"),
                         Path(LABPATH, f"atlas-DKT_dseg.tsv"))
@@ -299,7 +299,7 @@ def run(participant_id, global_configs, session_id, output_dir,
     for out in schaeferOut:
 
         # copy the labels to the output if they don't already exist there
-        if ~os.path.exists(Path(LABPATH, f"atlas-Schaefer2018_desc-{out[0]}Parcels{out[1]}Networks_dseg.tsv")):
+        if not os.path.exists(Path(LABPATH, f"atlas-Schaefer2018_desc-{out[0]}Parcels{out[1]}Networks_dseg.tsv")):
             print("Copy labels file to output")
             shutil.copyfile(Path(TEMPLATEFLOW_DIR, 'tpl-MNI152NLin2009cAsym', f"tpl-MNI152NLin2009cAsym_atlas-Schaefer2018_desc-{out[0]}Parcels{out[1]}Networks_dseg.tsv"),
                             Path(LABPATH, f"atlas-Schaefer2018_desc-{out[0]}Parcels{out[1]}Networks_dseg.tsv"))
