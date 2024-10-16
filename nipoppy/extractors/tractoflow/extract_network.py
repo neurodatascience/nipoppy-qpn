@@ -243,7 +243,7 @@ def run(participant_id, global_configs, session_id, output_dir,
     # create full path file names for inputs / ouptuts
 
     # space to freesurfer .mgz DKT labels
-    DKT_MGZ = Path(FS_PATH, f"ses-{session_id}", f"sub-{participant_id}", 'mri', 'aparc.DKTatlas+aseg.mgz')
+    DKT_MGZ = Path(FS_PATH, f"sub-{participant_id}", 'mri', 'aparc.DKTatlas+aseg.mgz')
 
     # output paths for converted DKT labels
     DKT_NII = Path(SEGPATH, f"sub-{participant_id}_ses-{session_id}_space-fsnative_atlas-DKTatlas+aseg_dseg.nii.gz")
