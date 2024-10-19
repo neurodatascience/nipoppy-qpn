@@ -202,7 +202,7 @@ def run(participant_id, global_configs, session_id, output_dir,
     print(f"Using PARTICIPANT_ID: {participant_id}, SESSION_ID: {session_id}")
 
     if output_dir is None:
-        output_dir = f"{DATASET_ROOT}/derivatives/networks/v0.9.0"
+        output_dir = f"{DATASET_ROOT}/derivatives/tractoflow/v{TRACTOFLOW_VERSION}/networks/"
 
     if tractoflow_dir is None:
         tractoflow_dir = f"{DATASET_ROOT}/derivatives/tractoflow/v{TRACTOFLOW_VERSION}/output/ses-{session_id}"
@@ -254,6 +254,20 @@ def run(participant_id, global_configs, session_id, output_dir,
     ANAT2MNI_ALL = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_run-1_from-T1w_to-MNI152NLin2009cAsym_mode-image_xfm.h5")
     MNI2ANAT_ALL = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_run-1_from-MNI152NLin2009cAsym_to-T1w_mode-image_xfm.h5")
     FS2ANAT_AFF = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_run-1_from-fsnative_to-T1w_mode-image_xfm.txt")
+
+    # work-around for multiple-runs
+    if not os.path.isfile(ANAT2MNI_ALL):
+        print(f"participant {participant_id} probably has multiple runs which are aggregated into one fmriprep anat output file...")
+        ANAT2MNI_ALL = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_from-T1w_to-MNI152NLin2009cAsym_mode-image_xfm.h5")
+
+    if not os.path.isfile(MNI2ANAT_ALL):
+        print(f"participant {participant_id} probably has multiple runs which are aggregated into one fmriprep anat output file...")
+        MNI2ANAT_ALL = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_from-MNI152NLin2009cAsym_to-T1w_mode-image_xfm.h5")
+
+    if not os.path.isfile(FS2ANAT_AFF):
+        print(f"participant {participant_id} probably has multiple runs which are aggregated into one fmriprep anat output file...")
+        FS2ANAT_AFF = Path(FP_PATH, f"sub-{participant_id}", f"ses-{session_id}", 'anat', f"sub-{participant_id}_ses-{session_id}_from-fsnative_to-T1w_mode-image_xfm.txt")
+        
 
     # path to space-dwi T1 image
     ANAT_DWI = Path(TF_PATH, f"sub-{participant_id}", 'Register_T1', f"sub-{participant_id}__t1_warped.nii.gz")
